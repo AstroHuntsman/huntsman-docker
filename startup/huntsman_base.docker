@@ -4,7 +4,7 @@
 #of huntsman-POCS that can be easily deployed on any Huntsman device.
 #==============================================================================
 #Specify the OS, Python included
-#Will change this to Raspbarian later
+#Could change this to e.g. Raspbarian later
 FROM ubuntu:18.04
 
 #Update apt-get 

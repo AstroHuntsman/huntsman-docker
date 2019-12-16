@@ -8,14 +8,16 @@
 #We should also think about how to expose the log files...
 
 #==============================================================================
-
 #Use the huntsman base docker image
 FROM huntsman_base:v1
 
-#Mount the SSHFS (non-blocking)
-CMD python $HUNTSMAN_POCS/scripts/auto_sshfs_mount.py 
+#Install SSHFS
+RUN apt-get install -y sshfs
 
-#Run the pyro camera server (blocking)
+#Mount the SSHFS (non-blocking) & pyro camera server (blocking)
 CMD python $HUNTSMAN_POCS/scripts/pyro_camera_server.py 
+
+#Expose the SSH port
+EXPOSE 22
 
 #==============================================================================
