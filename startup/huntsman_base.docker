@@ -1,3 +1,8 @@
+#==============================================================================
+#~~~~Huntsman-base~~~~
+#The purpose of this is to create a docker image of the most up-to-date version
+#of huntsman-POCS that can be easily deployed on any Huntsman device.
+#==============================================================================
 #Specify the OS, Python included
 #Will change this to Raspbarian later
 FROM ubuntu:18.04
@@ -10,6 +15,9 @@ RUN apt-get -y install git
 RUN apt-get -y install python3.6-dev
 RUN apt-get -y install python3-pip
 RUN apt-get -y install curl
+
+#Add python alias
+RUN ln -s $(which python3.6) /usr/bin/python
 
 #Upgrade pip from default OS version
 RUN python3.6 -m pip install pip --upgrade
@@ -53,49 +61,32 @@ RUN git clone https://github.com/panoptes/POCS.git
 RUN git clone https://github.com/panoptes/PAWS.git
 RUN git clone https://github.com/AstroHuntsman/huntsman-pocs.git
 
-#Astronomy.net
-#WORKDIR $PANDIR
-#RUN curl http://astrometry.net/downloads/astrometry.net-latest.tar.gz -o astrometry.tgz
-#RUN tar zxvf astrometry.tgz
-#WORKDIR $PANDIR/astrometry.net*
-#RUN echo $(pwd)
-#RUN echo $(pwd)
-#RUN make
-#RUN make py
-#RUN make extra
-#RUN make install INSTALL_DIR=$PANDIR/astrometry
-#WORKDIR $PANDIR 
-#RUN rm -rf astrometry.*
-
 #Python module installation
 WORKDIR $POCS
 RUN pip install -r requirements.txt
-RUN python3.6 setup.py develop
+RUN python setup.py develop
 WORKDIR $PAWS 
 RUN pip install -r requirements.txt
 WORKDIR $HUNTSMAN_POCS 
 RUN pip install -r requirements.txt
+RUN python setup.py develop
 
 #Misc stuff - not sure if necessary
 WORKDIR $POCS 
-RUN python3.6 pocs/utils/data.py
-
-#v not sure about this stuff!
-#crontab -e
-#* 12 * * 0 /Users/huntsman/anaconda3/envs/huntsman-pocs-env/bin/python $POCS/pocs/utils/data.py
+RUN python pocs/utils/data.py
 
 #==============================================================================
-#Install huntsman-dome
+#Install huntsman-dome - this currently does not work
 
-WORKDIR $PANDIR
-RUN git clone https://github.com/AstroHuntsman/huntsman-dome.git
-WORKDIR $PANDIR/huntsman-dome
-RUN pip install -r requirements.txt
+#WORKDIR $PANDIR
+#RUN git clone https://github.com/AstroHuntsman/huntsman-dome.git
+#WORKDIR $PANDIR/huntsman-dome
+#RUN pip install -r requirements.txt
 
 #==============================================================================
-#Expose ports
 
-#EXPOSE X Y
+
+
 
 
 

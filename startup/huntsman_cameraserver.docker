@@ -1,0 +1,21 @@
+#==============================================================================
+#~~~~Huntsman-cameraserver~~~~
+#The purpose of this is to create a docker container that runs the camera
+#servers. It is important that the pyro name server is running before calling
+#docker run. Additionally, the necessary ports (SSHFS, camera & name servers)
+#must be exposed and published when run.
+
+#We should also think about how to expose the log files...
+
+#==============================================================================
+
+#Use the huntsman base docker image
+FROM huntsman_base:v1
+
+#Mount the SSHFS (non-blocking)
+CMD python $HUNTSMAN_POCS/scripts/auto_sshfs_mount.py 
+
+#Run the pyro camera server (blocking)
+CMD python $HUNTSMAN_POCS/scripts/pyro_camera_server.py 
+
+#==============================================================================
