@@ -1,0 +1,98 @@
+#==============================================================================
+#~~~~Huntsman-base~~~~
+#The purpose of this is to create a docker image of the most up-to-date version
+#of huntsman-POCS that can be easily deployed on any Huntsman device.
+#==============================================================================
+#Specify the OS, Python included
+#Could change this to e.g. Raspbarian later
+FROM ubuntu:18.04
+
+#Update apt-get 
+RUN apt-get update
+
+#Install necessary packages
+RUN apt-get -y install git
+RUN apt-get -y install python3.6-dev
+RUN apt-get -y install python3-pip
+RUN apt-get -y install curl
+
+#Add python alias
+RUN ln -s $(which python3.6) /usr/bin/python
+
+#Upgrade pip from default OS version
+RUN python3.6 -m pip install pip --upgrade
+
+#Add huntsman user
+RUN useradd huntsman
+
+#==============================================================================
+#Install Huntsman-POCS (and dependencies)!
+
+#Dependencies
+RUN apt-get -y install pkg-config
+#RUN apt-get -y install md5sha1sum
+RUN apt-get -y install libcairo2-dev
+RUN apt-get -y install netpbm
+RUN apt-get -y install libpng-dev
+RUN apt-get -y install libjpeg-dev
+RUN apt-get -y install bzip2
+RUN apt-get -y install swig
+RUN apt-get -y install libcfitsio-dev
+RUN apt-get -y install gcc
+RUN apt-get -y install gphoto2
+RUN apt-get -y install libncurses5-dev
+
+#Environment variables
+ENV PANUSER=huntsman
+ENV PANDIR=/var/huntsman
+ENV POCS=${PANDIR}/POCS
+ENV PAWS=${PANDIR}/PAWS
+ENV HUNTSMAN_POCS=${PANDIR}/huntsman-pocs
+
+#POCs folders
+RUN mkdir $PANDIR && chown $PANUSER $PANDIR
+RUN mkdir -p $PANDIR/logs
+RUN mkdir -p $PANDIR/images
+RUN mkdir -p $PANDIR/mongo_data
+
+#Clone necessary repos
+WORKDIR $PANDIR
+RUN git clone https://github.com/panoptes/POCS.git
+RUN git clone https://github.com/panoptes/PAWS.git
+RUN git clone https://github.com/AstroHuntsman/huntsman-pocs.git
+
+#Python module installation
+WORKDIR $POCS
+RUN pip install -r requirements.txt
+RUN python setup.py develop
+WORKDIR $PAWS 
+RUN pip install -r requirements.txt
+WORKDIR $HUNTSMAN_POCS 
+RUN pip install -r requirements.txt
+RUN python setup.py develop
+
+#Misc stuff - not sure if necessary
+WORKDIR $POCS 
+RUN python pocs/utils/data.py
+
+#==============================================================================
+#Install huntsman-dome - this currently does not work
+
+#WORKDIR $PANDIR
+#RUN git clone https://github.com/AstroHuntsman/huntsman-dome.git
+#WORKDIR $PANDIR/huntsman-dome
+#RUN pip install -r requirements.txt
+
+#==============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
